@@ -2,7 +2,6 @@ class Student
   attr_accessor :id, :name, :grade
 
   def self.new_from_db(row)
-    # require 'pry' ; binding.pry
     student = Student.new()
     student.id = row[0]
     student.name = row[1]
@@ -31,6 +30,38 @@ class Student
       SELECT * FROM students WHERE grade = 9
     SQL
     student_rows = DB[:conn].execute(sql)
+    student_rows.map { |row| self.new_from_db(row) }
+  end
+
+  def self.students_below_12th_grade
+    sql = <<-SQL
+      SELECT * FROM students WHERE grade < 12
+    SQL
+    student_rows = DB[:conn].execute(sql)
+    student_rows.map { |row| self.new_from_db(row) }
+  end
+
+  def self.first_X_students_in_grade_10(num)
+    sql = <<-SQL
+      SELECT * FROM students WHERE grade = 10 LIMIT ?
+    SQL
+    student_rows = DB[:conn].execute(sql, num)
+    student_rows.map { |row| self.new_from_db(row) }
+  end
+
+  def self.first_student_in_grade_10
+    sql = <<-SQL
+      SELECT * FROM students WHERE grade = 10 LIMIT 1
+    SQL
+    student_rows = DB[:conn].execute(sql)
+    student_rows.map { |row| self.new_from_db(row) }.first()
+  end
+
+  def self.all_students_in_grade_X(grade)
+    sql = <<-SQL
+      SELECT * FROM students WHERE grade = ?
+    SQL
+    student_rows = DB[:conn].execute(sql, grade)
     student_rows.map { |row| self.new_from_db(row) }
   end
 
